@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
             if(mIeasyService!=null){
                 try {
                     String result = mIeasyService.getVal();
+                    result += " " + mIeasyService.getBookName();
                     Log.i(TAG,result);
                 } catch (RemoteException e) {
                     e.printStackTrace();

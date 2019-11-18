@@ -8,15 +8,30 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.example.server.bean.Book;
+
 public class EasyService extends Service {
 
     private static final String TAG = EasyService.class.getName();
 
+    private Book book = new Book("test_Name");
     IEasyService.Stub mIBinder = new IEasyService.Stub() {
         @Override
         public String getVal() throws RemoteException {
             return "testService";
         }
+
+        @Override
+        public String getBookName() throws RemoteException {
+            return book.getName();
+        }
+
+        @Override
+        public void setBookName() throws RemoteException {
+
+        }
+
+
     };
 
     @Nullable

@@ -9,4 +9,8 @@ interface IEasyService {
      * and return values in AIDL.
      */
     String getVal();
+
+    String getBookName();
+
+    void setBookName();
     }
