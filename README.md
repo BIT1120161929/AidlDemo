@@ -2,6 +2,7 @@
 #AIDL的简单使用  
 Server端：  
   1、创建AIDL文件  
+  ![AIDL文件位置]images/AIDL文件位置.png  
   2、在接口中定义方法  
   3、构建Service服务  
   4、在manifest文件中注册服务  
