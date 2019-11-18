@@ -18,3 +18,7 @@ Server端：
   ![连接绑定](images/client_implement_aidl.png)  
   4、调用接口  
   ![Client端调用接口](images/client_use_method.png)  
+
+
+运行结果：  
+![成功显示](images/result.png)  
