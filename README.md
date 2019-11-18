@@ -22,3 +22,18 @@ Server端：
 
 运行结果：  
 ![成功显示](images/result.png)  
+
+
+使用了JavaBean的情况  
+1、创建一个JavaBean实体类，并且继承Parcelable  
+![javabean](images/server_bean_entity.png)  
+2、在对应的AIDL包下创建对应实体类的AIDL文件，并且把它改成声明为parcelable数据类型的AIDL文件  
+![server_bean_aid](images/server_bean_aidl.png)  
+3、还是将所有的AIDL文件拷贝的Client端的对应目录下，还是要包名相同  
+![client_copy](images/client_copy.png)  
+4、注意要将JavaBean文件也拷贝过去  
+5、增加了一个新的方法来测试  
+![client_new_use](images/client_new_use.png)  
+
+运行结果  
+![](images/client_new_result.png)  
