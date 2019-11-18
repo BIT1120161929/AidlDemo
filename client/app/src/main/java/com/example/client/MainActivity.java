@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
+        /**
+         * 获取AIDL接口实例
+         */
         ServiceConnection mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -46,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
 
         binding.btnStartService.setOnClickListener(view->{
             Log.i(TAG,"onButtonClick :  btn_start_service ");
+            //ACTION为server端在manifest中注册时的ACTION
             Intent intent = new Intent(ACTION);
+            //这的PACKAGE是服务端的包名，android5.0之后不允许匿名启动Service
             intent.setPackage(PACKAGE);
             bindService(intent,mServiceConnection, Context.BIND_AUTO_CREATE);
         });
