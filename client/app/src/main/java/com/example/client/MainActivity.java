@@ -36,8 +36,14 @@ public class MainActivity extends AppCompatActivity {
          * 获取AIDL接口实例
          */
         ServiceConnection mServiceConnection = new ServiceConnection() {
+            /**
+             * 服务连接时初始化IEasyService对象
+             * @param name
+             * @param service 这个就是Binder对象，是Server端传过来的
+             */
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
+                //通过AsInterface判断是否在同一进程，如果不在同一进程就将Binder对象包装成Proxy。
                 mIeasyService = IEasyService.Stub.asInterface(service);
             }
 
