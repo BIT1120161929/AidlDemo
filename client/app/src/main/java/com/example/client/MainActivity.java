@@ -43,7 +43,11 @@ public class MainActivity extends AppCompatActivity {
              */
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                //通过AsInterface判断是否在同一进程，如果不在同一进程就将Binder对象包装成Proxy。
+                /**
+                 * 通过AsInterface判断是否在同一进程，如果不在同一进程就将Binder对象包装成Proxy。
+                 * 这其实是一种设计模式叫做代理-桩模式。
+                 * Stub是服务器的代理，Proxy是Stub的代理。
+                 */
                 mIeasyService = IEasyService.Stub.asInterface(service);
             }
 
