@@ -15,6 +15,9 @@ public class EasyService extends Service {
     private static final String TAG = EasyService.class.getName();
 
     private Book book = new Book("test_Name");
+    /**
+     * 完全可以不使用AIDL而自己手写对应的接口然后在onBind中返回即可
+     */
     IEasyService.Stub mIBinder = new IEasyService.Stub() {
         @Override
         public String getVal() throws RemoteException {
