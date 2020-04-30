@@ -3,6 +3,7 @@ package com.example.server;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -20,7 +21,7 @@ public class EasyService extends Service {
     private Book book = new Book("test_Name");
 
     List<Book> bookList = new CopyOnWriteArrayList<>();
-    List<IOnNewBookArrivedListener> listeners = new CopyOnWriteArrayList<>();
+    RemoteCallbackList<IOnNewBookArrivedListener> listeners = new RemoteCallbackList<>();
     /**
      * 完全可以不使用AIDL而自己手写对应的接口然后在onBind中返回即可
      */
@@ -47,24 +48,12 @@ public class EasyService extends Service {
 
         @Override
         public void registerListener(IOnNewBookArrivedListener listener) throws RemoteException {
-            if(!listeners.contains(listener)){
-                listeners.add(listener);
-            }else{
-                Log.d(TAG,"already exist!");
-            }
-
-            Log.d(TAG,"register, registerListener size : "+listeners.size());
+            listeners.register(listener);
         }
 
         @Override
         public void unRegisterListener(IOnNewBookArrivedListener listener) throws RemoteException {
-            if(listeners.contains(listener)){
-                listeners.remove(listener);
-            }else{
-                Log.d(TAG,"not found!");
-            }
-
-            Log.d(TAG,"unregister, registerListener size : "+listeners.size());
+            listeners.unregister(listener);
         }
 
 
@@ -100,12 +89,15 @@ public class EasyService extends Service {
 
     private void onNewBookArrived(Book book) throws RemoteException{
         bookList.add(book);
-        Log.d(TAG,"onNewBookArrived, notify listeners : "+listeners.size());
+        final int N = listeners.beginBroadcast();
+        Log.d(TAG,"onNewBookArrived, notify listeners : "+N);
 
-        for (IOnNewBookArrivedListener listener : listeners) {
-            listener.onNewBookArrived(book);
-            Log.d(TAG,"onNewBookArrived, notify listeners : "+listener);
+        for (int i = 0 ; i < N ; i++) {
+            listeners.getBroadcastItem(i).onNewBookArrived(book);
+            Log.d(TAG,"onNewBookArrived, notify listeners");
         }
+
+        listeners.finishBroadcast();
     }
 
     private class ServiceWorker implements Runnable{

@@ -169,14 +169,18 @@ public class MainActivity extends AppCompatActivity {
        super.onDestroy();
     }
 
+    private boolean connected = false;
     private void init() {
         binding.btnStartService.setOnClickListener(view->{
             Log.i(TAG,"onButtonClick :  btn_start_service ");
             //ACTION为server端在manifest中注册时的ACTION
-            Intent intent = new Intent(ACTION);
-            //这的PACKAGE是服务端的包名，android5.0之后不允许匿名启动Service
-            intent.setPackage(PACKAGE);
-            bindService(intent,mServiceConnection, Context.BIND_AUTO_CREATE);
+            if(!connected){
+                Intent intent = new Intent(ACTION);
+                //这的PACKAGE是服务端的包名，android5.0之后不允许匿名启动Service
+                intent.setPackage(PACKAGE);
+                bindService(intent,mServiceConnection, Context.BIND_AUTO_CREATE);
+                connected = true;
+            }
         });
 
         binding.btnContact.setOnClickListener(view->{
@@ -210,6 +214,14 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 mService.send(message);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        });
+
+        binding.disconnect.setOnClickListener(view->{
+            try {
+                mIeasyService.unRegisterListener(listener);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
