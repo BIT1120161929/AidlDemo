@@ -16,8 +16,12 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.example.client.bean.Book;
 import com.example.client.databinding.ActivityMainBinding;
 import com.example.server.IEasyService;
+import com.example.server.IOnNewBookArrivedListener;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +32,19 @@ public class MainActivity extends AppCompatActivity {
     private static final String PACKAGE = "com.example.server";
     private IEasyService mIeasyService;
 
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+
+            switch (msg.what){
+                case 4:
+                    Log.d(TAG,"receive new Book : "+msg.obj);
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    };
     /**
      * 获取AIDL接口实例
      */
@@ -45,7 +62,11 @@ public class MainActivity extends AppCompatActivity {
              * Stub是服务器的代理，Proxy是Stub的代理。
              */
             mIeasyService = IEasyService.Stub.asInterface(service);
-
+            try {
+                mIeasyService.registerListener(listener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             //给service也就是Binder对象设置死亡代理
             try {
                 service.linkToDeath(mDeathRecipient,0);
@@ -57,6 +78,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mIeasyService = null;
+        }
+    };
+
+    private IOnNewBookArrivedListener listener = new IOnNewBookArrivedListener.Stub() {
+        @Override
+        public void onNewBookArrived(Book newBook) throws RemoteException {
+            mHandler.obtainMessage(4,newBook).sendToTarget();
         }
     };
 
@@ -128,6 +156,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+       if(mIeasyService!=null && mIeasyService.asBinder().isBinderAlive()){
+           Log.i(TAG,"unregister listener : "+listener);
+           try {
+               mIeasyService.unRegisterListener(listener);
+           } catch (RemoteException e) {
+               e.printStackTrace();
+           }
+       }
        unbindService(msgServiceConnection);
        unbindService(mServiceConnection);
        super.onDestroy();

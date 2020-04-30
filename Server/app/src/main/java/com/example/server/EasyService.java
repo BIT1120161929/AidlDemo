@@ -10,11 +10,17 @@ import androidx.annotation.Nullable;
 
 import com.example.server.bean.Book;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class EasyService extends Service {
 
     private static final String TAG = EasyService.class.getName();
 
     private Book book = new Book("test_Name");
+
+    List<Book> bookList = new CopyOnWriteArrayList<>();
+    List<IOnNewBookArrivedListener> listeners = new CopyOnWriteArrayList<>();
     /**
      * 完全可以不使用AIDL而自己手写对应的接口然后在onBind中返回即可
      */
@@ -31,11 +37,46 @@ public class EasyService extends Service {
 
         @Override
         public void setBookName() throws RemoteException {
+            book.setName("changeName");
+        }
 
+        @Override
+        public void addBook(Book book) throws RemoteException {
+            bookList.add(book);
+        }
+
+        @Override
+        public void registerListener(IOnNewBookArrivedListener listener) throws RemoteException {
+            if(!listeners.contains(listener)){
+                listeners.add(listener);
+            }else{
+                Log.d(TAG,"already exist!");
+            }
+
+            Log.d(TAG,"register, registerListener size : "+listeners.size());
+        }
+
+        @Override
+        public void unRegisterListener(IOnNewBookArrivedListener listener) throws RemoteException {
+            if(listeners.contains(listener)){
+                listeners.remove(listener);
+            }else{
+                Log.d(TAG,"not found!");
+            }
+
+            Log.d(TAG,"unregister, registerListener size : "+listeners.size());
         }
 
 
     };
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        bookList.add(new Book("Android"));
+        bookList.add(new Book("IOS"));
+        new Thread(new ServiceWorker()).start();
+    }
 
     @Nullable
     @Override
@@ -54,5 +95,38 @@ public class EasyService extends Service {
     public void onDestroy() {
         Log.i(TAG,"onDestroy: ");
         super.onDestroy();
+    }
+
+
+    private void onNewBookArrived(Book book) throws RemoteException{
+        bookList.add(book);
+        Log.d(TAG,"onNewBookArrived, notify listeners : "+listeners.size());
+
+        for (IOnNewBookArrivedListener listener : listeners) {
+            listener.onNewBookArrived(book);
+            Log.d(TAG,"onNewBookArrived, notify listeners : "+listener);
+        }
+    }
+
+    private class ServiceWorker implements Runnable{
+
+        @Override
+        public void run() {
+            while(true){
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Book newBook = new Book("book#"+(bookList.size()+1));
+                Log.i(TAG,"add a new book : "+newBook);
+                try {
+                    onNewBookArrived(book);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

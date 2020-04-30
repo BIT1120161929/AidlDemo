@@ -1,5 +1,5 @@
 
-package com.example.client;
+package com.example.client.bean;
 
 // Declare any non-default types here with import statements
 
